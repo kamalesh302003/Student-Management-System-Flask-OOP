@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Courses - Student Management System{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Courses</h2>
+    {% if session.get('username') %}
+        <a href="{{ url_for('courses.add_course') }}" class="btn btn-success">+ Add Course</a>
+    {% endif %}
+</div>
+
+{% if courses %}
+<div class="row">
+    {% for course in courses %}
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ course.title }}</h5>
+                <p class="card-text"><strong>Code:</strong> {{ course.code }}</p>
+                <p class="card-text"><strong>Description:</strong> {{ course.description or 'No description' }}</p>
+                {% if session.get('username') %}
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('courses.edit_course', course_id=course.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="POST" action="{{ url_for('courses.delete_course', course_id=course.id) }}" onsubmit="return confirm('Delete this course?')" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+    <div class="alert alert-info">No courses found. {% if session.get('username') %}<a href="{{ url_for('courses.add_course') }}">Add one now</a>{% endif %}</div>
+{% endif %}
+{% endblock %}

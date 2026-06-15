@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Student Management System{% endblock %}
+{% block content %}
+<section class="dashboard-hero">
+    <div class="dashboard-hero-head">
+        <div>
+            <span class="eyebrow">Student Management</span>
+            <h1>{{ greeting }}, {{ session.get('username') or 'Guest' }}</h1>
+            <p class="lead">Here's an overview of your students,courses and institution activities.</p>
+        </div>
+        <div class="hero-actions">
+            <a href="{{ url_for('students.add_student') }}" class="btn btn-outline">Add new student</a>
+            <a href="{{ url_for('courses.add_course') }}" class="btn btn-outline">Add new course</a>
+            {% if session.get('username') %}
+                <a href="{{ url_for('payments.add_payment') }}" class="btn btn-outline">Record payment</a>
+            {% endif %}
+            <a href="{{ url_for('students.list_students') }}" class="btn btn-primary">View report</a>
+        </div>
+    </div>
+
+    <div class="dashboard-cards row g-4 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <article class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon stat-icon-primary">▢</span>
+                    <span class="stat-label">Total students</span>
+                </div>
+                <div class="stat-number">{{ total_students }}</div>
+                <div class="stat-description">+1 this month</div>
+            </article>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <article class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon stat-icon-success">▢</span>
+                    <span class="stat-label">Active courses</span>
+                </div>
+                <div class="stat-number">{{ active_courses }}</div>
+                <div class="stat-description">{{ active_courses }} semesters</div>
+            </article>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <article class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon stat-icon-warning">▢</span>
+                    <span class="stat-label">Payments due</span>
+                </div>
+                <div class="stat-number">₹{{ payments_due }}</div>
+                <div class="stat-description">{{ payments_status }}</div>
+            </article>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <article class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon stat-icon-secondary">▢</span>
+                    <span class="stat-label">Avg attendance</span>
+                </div>
+                <div class="stat-number">{{ avg_attendance }}%</div>
+                <div class="stat-description">Above target</div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="dashboard-layout row g-4">
+    <div class="col-xl-6">
+        <div class="card dark-card">
+            <div class="card-header">
+                <h3>Quick actions</h3>
+            </div>
+            <div class="card-body quick-action-list">
+                <a href="{{ url_for('students.add_student') }}" class="action-card">
+                    <span class="action-icon">▢</span>
+                    <div>
+                        <h4>Add new student</h4>
+                        <p>Register and assign to a course</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('courses.add_course') }}" class="action-card">
+                    <span class="action-icon">▢</span>
+                    <div>
+                        <h4>Add new course</h4>
+                        <p>Set credits, capacity, instructor</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('payments.add_payment') }}" class="action-card">
+                    <span class="action-icon">▢</span>
+                    <div>
+                        <h4>Record payment</h4>
+                        <p>Log fee or scholarship</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('students.list_students') }}" class="action-card">
+                    <span class="action-icon">▢</span>
+                    <div>
+                        <h4>Generate report</h4>
+                        <p>Export student or grade data</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card dark-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3>Recent activity</h3>
+                <span class="status-pill">Today</span>
+            </div>
+            <div class="card-body activity-feed">
+                {% for item in activity %}
+                <div class="activity-item">
+                    <div class="activity-profile">
+                        <span class="activity-avatar">{{ item.title[:2] }}</span>
+                        <div>
+                            <h5>{{ item.title }}</h5>
+                            <p>{{ item.subtitle }}</p>
+                        </div>
+                    </div>
+                    <span class="status-badge {{ item.badge_class|default('badge-secondary') }}">{{ item.badge }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
