@@ -3,6 +3,16 @@ from models.student import Student
 
 class StudentService:
     @staticmethod
+    def _parse_attendance(value):
+        if value is None or str(value).strip() == '':
+            return None
+        try:
+            attendance = int(value)
+            return max(0, min(100, attendance))
+        except ValueError:
+            return None
+
+    @staticmethod
     def _row_to_student(row):
         if row is None:
             return None
@@ -13,7 +23,8 @@ class StudentService:
             email=row['email'],
             student_id=row['student_id'],
             course=row['course'],
-            grade=row['grade']
+            grade=row['grade'],
+            attendance=row['attendance']
         )
 
     @staticmethod
@@ -34,18 +45,23 @@ class StudentService:
 
     @staticmethod
     def add_student(data):
+        attendance = StudentService._parse_attendance(data.get('attendance'))
+        if data.get('attendance') and attendance is None:
+            return False, 'Attendance must be a whole number between 0 and 100.'
+
         conn=get_connection()
         try:
             conn.execute('''
-                INSERT INTO students (name,age,email,student_id,course,grade)
-                VALUES (?,?,?,?,?,?)
+                INSERT INTO students (name,age,email,student_id,course,grade,attendance)
+                VALUES (?,?,?,?,?,?,?)
             ''', (
                 data['name'],
                 int(data['age']),
                 data['email'],
                 data['student_id'],
                 data['course'],
-                data.get('grade') or None
+                data.get('grade') or None,
+                attendance
             ))
             conn.commit()
             return True,'Student added successfully!'
@@ -56,11 +72,15 @@ class StudentService:
 
     @staticmethod
     def update_student(student_id, data):
+        attendance = StudentService._parse_attendance(data.get('attendance'))
+        if data.get('attendance') and attendance is None:
+            return False, 'Attendance must be a whole number between 0 and 100.'
+
         conn=get_connection()
         try:
             conn.execute('''
                 UPDATE students
-                SET name=?,age=?,email=?,course=?,grade=?
+                SET name=?,age=?,email=?,course=?,grade=?,attendance=?
                 WHERE student_id=?
             ''', (
                 data['name'],
@@ -68,6 +88,7 @@ class StudentService:
                 data['email'],
                 data['course'],
                 data.get('grade') or None,
+                attendance,
                 student_id
             ))
             conn.commit()
@@ -93,6 +114,13 @@ class StudentService:
         count=conn.execute('SELECT COUNT(*) FROM students').fetchone()[0]
         conn.close()
         return count
+
+    @staticmethod
+    def get_average_attendance():
+        conn=get_connection()
+        row=conn.execute('SELECT AVG(attendance) as avg_attendance FROM students WHERE attendance IS NOT NULL').fetchone()
+        conn.close()
+        return round(row['avg_attendance'], 1) if row and row['avg_attendance'] is not None else 0
 
     @staticmethod
     def get_recent_students(limit=5):

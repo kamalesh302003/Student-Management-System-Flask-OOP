@@ -44,6 +44,7 @@ def index():
 
     greeting = get_time_greeting()
     payments_status = 'All cleared' if payments_due == 0 else 'Pending payments'
+    avg_attendance = StudentService.get_average_attendance()
 
     return render_template(
         'index.html',
@@ -52,7 +53,7 @@ def index():
         payments_due=payments_due,
         payments_status=payments_status,
         payment_count=payment_count,
-        avg_attendance=91,
+        avg_attendance=avg_attendance,
         activity=activity,
         greeting=greeting
     )
@@ -60,7 +61,7 @@ def index():
 @student_bp.route('/students')
 def list_students():
     students=StudentService.get_all_students()
-    student_data=[s.get_details() for s in students]
+    student_data=[dict(s.get_details(), attendance_status=s.attendance_status()) for s in students]
     return render_template('students.html',students=student_data)
 
 @student_bp.route('/students/add',methods=['GET', 'POST'])

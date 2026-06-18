@@ -18,8 +18,13 @@
                 <th>Age</th>
                 <th>Email</th>
                 <th>Course</th>
+                <th>Attendance</th>
+                <th>Status</th>
                 <th>Grade</th>
-                {% if session.get('username') %}<th>Actions</th>{% endif %}
+                {% if session.get('username') %}
+                    <th>Edit</th>
+                    <th>Delete</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -30,11 +35,15 @@
                 <td>{{ s.age }}</td>
                 <td>{{ s.email }}</td>
                 <td>{{ s.course }}</td>
+                <td>{{ s.attendance if s.attendance is not none else '—' }}{% if s.attendance is not none %}%{% endif %}</td>
+                <td>{{ s.attendance_status }}</td>
                 <td>{{ s.grade or '—' }}</td>
                 {% if session.get('username') %}
                 <td>
                     <a href="{{ url_for('students.edit_student', student_id=s.student_id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form method="POST" action="{{ url_for('students.delete_student', student_id=s.student_id) }}" onsubmit="return confirm('Delete this student?')" style="display:inline;">
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('students.delete_student', student_id=s.student_id) }}" onsubmit="return confirm('Delete this student?')">
                         <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                     </form>
                 </td>

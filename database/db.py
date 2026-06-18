@@ -8,6 +8,13 @@ def get_connection():
     conn.row_factory=sqlite3.Row # access columns by name
     return conn
 
+
+def _ensure_column_exists(conn, table, column, definition):
+    columns = [row['name'] for row in conn.execute(f'PRAGMA table_info({table})').fetchall()]
+    if column not in columns:
+        conn.execute(f'ALTER TABLE {table} ADD COLUMN {column} {definition}')
+
+
 def init_db():
     conn=get_connection()
     cursor=conn.cursor()
@@ -47,6 +54,7 @@ def init_db():
             created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    _ensure_column_exists(conn, 'students', 'attendance', 'INTEGER')
     
     # Enrollment table
     cursor.execute('''
